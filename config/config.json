@@ -1,0 +1,9 @@
+{
+    "MainWindow": {
+        "BackgroundMode": "Light"
+    },
+    "QFluentWidgets": {
+        "ThemeColor": "#ff009faa",
+        "ThemeMode": "Dark"
+    }
+}
