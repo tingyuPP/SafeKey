@@ -1,0 +1,2 @@
+# SafeKey
+a password manager
