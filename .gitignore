@@ -2,7 +2,6 @@
 __pycache__/
 *.py[cod]
 *$py.class
-passwords.db
 # C extensions
 *.so
 
@@ -169,3 +168,6 @@ cython_debug/
 
 # PyPI configuration file
 .pypirc
+
+# Ignore passwords.db
+passwords.db
