@@ -48,8 +48,36 @@ class DatabaseManager:
 
     # 获取所有密码
     def get_all_passwords(self):
-        cursor = self.execute_query("SELECT * FROM passwords")
+        cursor = self.execute_query("SELECT * FROM passwords ORDER BY website ASC")
         return cursor.fetchall() if cursor else []
+
+    # 更新密码
+    def update_password(self, record_id, **kwargs):
+        """更新密码记录"""
+        if not kwargs:
+            return
+        
+        set_clause = ", ".join([f"{key} = ?" for key in kwargs.keys()])
+        values = list(kwargs.values())
+        values.append(record_id)
+        
+        query = f"""
+        UPDATE passwords 
+        SET {set_clause}
+        WHERE id = ?
+        """
+        self.conn.execute(query, values)
+        self.conn.commit()
+
+    def search_passwords(self, keyword):
+        """根据关键词模糊搜索网站"""
+        query = """
+        SELECT * FROM passwords 
+        WHERE website LIKE ?
+        ORDER BY website ASC
+        """
+        cursor = self.conn.execute(query, (f"%{keyword}%",))
+        return cursor.fetchall()
 
     def __del__(self):
         if self.conn:
