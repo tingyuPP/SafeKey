@@ -9,6 +9,7 @@ from PyQt5.QtGui import QIcon, QDesktopServices
 from PyQt5.QtWidgets import QApplication, QFrame, QHBoxLayout
 from SettingInterface import SettingInterface
 from HomeInterface import HomeInterface
+from toolInterface import ToolInterface
 from config import cfg
 
 myappid = 'SafeKey'
@@ -28,12 +29,14 @@ class MainWindow(MSFluentWindow):
         # create sub interface
         self.homeInterface = HomeInterface('密码管理', self)
         self.settingInterface = SettingInterface('设置', self)
+        self.toolInterface = ToolInterface('随机密码生成器', self)
 
         self.initNavigation()
         self.initWindow()
 
     def initNavigation(self):
         self.addSubInterface(self.homeInterface, FIF.HOME, '主页', FIF.HOME_FILL)
+        self.addSubInterface(self.toolInterface, FIF.DEVELOPER_TOOLS, '工具')
         self.addSubInterface(self.settingInterface, FIF.SETTING, '设置')
 
         # 添加自定义导航组件

@@ -2,8 +2,8 @@ from PyQt5.QtWidgets import QFrame, QWidget
 from qfluentwidgets import FluentIcon as FIF
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QIcon
-from PyQt5.QtWidgets import QApplication, QVBoxLayout, QSizePolicy
-from qfluentwidgets import SubtitleLabel, setFont, OptionsSettingCard, setTheme, Theme
+from PyQt5.QtWidgets import QApplication, QVBoxLayout, QSizePolicy, QFileDialog
+from qfluentwidgets import (SubtitleLabel, setFont, OptionsSettingCard, setTheme, Theme, PushSettingCard)
 from config import cfg
 
 class SettingInterface(QFrame):
@@ -11,7 +11,7 @@ class SettingInterface(QFrame):
         super().__init__(parent=parent)
         self.label = SubtitleLabel(text, self)
         self.vBoxLayout = QVBoxLayout(self)
-        self.vBoxLayout.setSpacing(20)
+        self.vBoxLayout.setSpacing(10)
 
         setFont(self.label, 24)
         self.label.setAlignment(Qt.AlignLeft | Qt.AlignTop)
@@ -24,14 +24,24 @@ class SettingInterface(QFrame):
         self.backgroundCard = OptionsSettingCard(
             cfg.backgroundMode,
             FIF.BRUSH,
-            self.tr('更改主题格式'),
-            self.tr("改变应用程序的主题格式"),
+            self.tr('更改背景样式'),
+            self.tr("改变应用程序的背景样式"),
             texts=[
                 self.tr('明亮'), self.tr('暗黑'),
             ],
         )
         self.backgroundCard.setSizePolicy(QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed))
-        self.vBoxLayout.addWidget(self.backgroundCard, 1, Qt.AlignTop)
+        self.directoryCard = PushSettingCard(
+            text="选择文件夹",
+            icon=FIF.DOWNLOAD,
+            title="默认导出目录",
+            content=cfg.get(cfg.exportDir)
+        )
+        self.directoryCard.setSizePolicy(QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed))
+        self.directoryCard.clicked.connect(self.openFileDialog)
+        self.vBoxLayout.addWidget(self.backgroundCard, 0, Qt.AlignTop)
+        self.vBoxLayout.addWidget(self.directoryCard, 0, Qt.AlignTop)
+        self.vBoxLayout.addStretch(1)
 
         # 设置布局边距
         self.vBoxLayout.setContentsMargins(20, 20, 20, 20)
@@ -54,3 +64,9 @@ class SettingInterface(QFrame):
         else:
             # 默认使用浅色主题
             setTheme(Theme.LIGHT)
+
+    def openFileDialog(self):
+        path = QFileDialog.getExistingDirectory(self, "选择文件夹")
+        if path:
+            self.directoryCard.setContent(path)
+        cfg.set(cfg.exportDir, path)

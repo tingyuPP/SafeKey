@@ -171,3 +171,5 @@ cython_debug/
 
 # Ignore passwords.db
 passwords.db
+abc.csv
+abc.json
