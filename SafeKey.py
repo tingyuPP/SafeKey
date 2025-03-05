@@ -53,7 +53,7 @@ class MainWindow(MSFluentWindow):
     def showFlyout(self):
         view = FlyoutView(
             title = '关于本项目',
-            content = '本项目是一个简易密码管理器，使用Python编写，基于PyQt5和qfluentwidgets库开发。',
+            content = '本项目是一个简易密码管理器，使用Python编写，基于PyQt5和PyQt-Fluent-Widgets库开发。',
             isClosable= True,
         )
 
