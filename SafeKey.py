@@ -44,7 +44,7 @@ class MainWindow(MSFluentWindow):
 
     def initWindow(self):
         self.resize(900, 700)
-        self.setWindowIcon(QIcon('image/logo.ico'))
+        self.setWindowIcon(QIcon('resource/logo.ico'))
         self.setWindowTitle('SafeKey')
         desktop = QApplication.desktop().availableGeometry()
         w, h = desktop.width(), desktop.height()
