@@ -1,12 +1,12 @@
 import ctypes
 import sys
 from qfluentwidgets import (NavigationItemPosition, setTheme, Theme, MSFluentWindow,
-                            NavigationAvatarWidget, qrouter, SubtitleLabel, setFont, FlyoutView,
-                            FlyoutAnimationType, HyperlinkButton, Flyout,)
+                            NavigationAvatarWidget, SubtitleLabel, setFont, FlyoutView,
+                            FlyoutAnimationType, HyperlinkButton, Flyout, SplashScreen)
 from qfluentwidgets import FluentIcon as FIF
-from PyQt5.QtCore import Qt, QUrl, QPoint
-from PyQt5.QtGui import QIcon, QDesktopServices
-from PyQt5.QtWidgets import QApplication, QFrame, QHBoxLayout
+from PyQt5.QtCore import Qt, QUrl, QPoint, QSize
+from PyQt5.QtGui import QIcon
+from PyQt5.QtWidgets import QApplication
 from SettingInterface import SettingInterface
 from HomeInterface import HomeInterface
 from toolInterface import ToolInterface
@@ -19,20 +19,12 @@ class MainWindow(MSFluentWindow):
 
     def __init__(self):
         super().__init__()
-
-        # 设置主题
-        if cfg.backgroundMode.value == 'Dark':
-            setTheme(Theme.DARK)
-        else:
-            setTheme(Theme.LIGHT)
-
-        # create sub interface
+        self.initWindow()
         self.homeInterface = HomeInterface('密码管理', self)
         self.settingInterface = SettingInterface('设置', self)
         self.toolInterface = ToolInterface('随机密码生成器', self)
-
         self.initNavigation()
-        self.initWindow()
+        
 
     def initNavigation(self):
         self.addSubInterface(self.homeInterface, FIF.HOME, '主页', FIF.HOME_FILL)
@@ -48,14 +40,12 @@ class MainWindow(MSFluentWindow):
             selectable=False,
             position=NavigationItemPosition.BOTTOM,
         )
-
         self.navigationInterface.setCurrentItem(self.homeInterface.objectName())
 
     def initWindow(self):
         self.resize(900, 700)
-        self.setWindowIcon(QIcon(':/qfluentwidgets/images/logo.png'))
+        self.setWindowIcon(QIcon('image/logo.ico'))
         self.setWindowTitle('SafeKey')
-
         desktop = QApplication.desktop().availableGeometry()
         w, h = desktop.width(), desktop.height()
         self.move(w//2 - self.width()//2, h//2 - self.height()//2)
@@ -63,20 +53,19 @@ class MainWindow(MSFluentWindow):
     def showFlyout(self):
         view = FlyoutView(
             title = '关于本项目',
-            content = '本项目是一个密码管理器，用于存储用户的网站账号和密码，以及其他重要信息。',
-            image = 'image/hua.jpg',
+            content = '本项目是一个简易密码管理器，使用Python编写，基于PyQt5和qfluentwidgets库开发。',
             isClosable= True,
         )
 
         githubButton = HyperlinkButton(FIF.LINK, "https://github.com/tingyuPP/SafeKey", "仓库地址")
         githubButton.setFixedWidth(120)
         view.addWidget(githubButton, align=Qt.AlignRight)
-
         view.widgetLayout.insertSpacing(1, 5)
         view.widgetLayout.addSpacing(5)
 
+        # 调整弹出窗口位置
         window_geometry = self.geometry()
-        window_bottom_left = QPoint(window_geometry.left(), window_geometry.bottom() - 400)
+        window_bottom_left = QPoint(window_geometry.left(), window_geometry.bottom() - 50)
 
         # 显示弹出窗口
         w = Flyout.make(view, window_bottom_left, self)

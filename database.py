@@ -2,12 +2,15 @@ import sqlite3
 import csv
 import json
 from qfluentwidgets import MessageBox
+from Crypto.Cipher import AES
+from Crypto.Util.Padding import pad
+from Crypto.Random import get_random_bytes
+from config import cfg
 
 class DatabaseManager:
     def __init__(self, db_name="passwords.db"):
         self.conn = sqlite3.connect(db_name)
         self.create_table()
-        print(1)
 
     # 建表
     def create_table(self):
@@ -34,8 +37,17 @@ class DatabaseManager:
             MessageBox.critical(None, "数据库错误", f"数据库操作失败: {str(e)}")
             return None
 
-    # 添加条目
-    def add_password(self, website, username, password, notes=""):
+    def add_password(self, website, username, password, notes="", override=True):
+        """添加密码记录"""
+        if override:
+            query = "SELECT id FROM passwords WHERE website=? AND username=? AND password=?"
+            cursor = self.conn.execute(query, (website, username, password))
+            rows = cursor.fetchall()
+            if rows:
+                for row in rows:
+                    del_query = "DELETE FROM passwords WHERE id=?"
+                    self.conn.execute(del_query, (row[0],))
+                self.conn.commit()
         query = """
         INSERT INTO passwords (website, username, password, notes)
         VALUES (?, ?, ?, ?)
@@ -93,13 +105,13 @@ class DatabaseManager:
         return cursor.fetchall()
     
     def export_passwords(self, file_path, fmt):
-        data = self.get_all_passwords()  # 假设已有该方法获取所有数据
+        data = self.get_all_passwords()
         if fmt == 'csv':
             self._export_to_csv(file_path, data)
         elif fmt == 'json':
             self._export_to_json(file_path, data)
         elif fmt == 'aes':
-            raise NotImplementedError("AES export not implemented yet")
+            self._export_to_aes(file_path, data)
         else:
             raise ValueError(f"Unsupported format: {fmt}")
 
@@ -123,6 +135,93 @@ class DatabaseManager:
             entries.append(entry)
         with open(file_path, 'w', encoding='utf-8') as f:
             json.dump(entries, f, indent=4)
+    
+    def _export_to_aes(self, file_path, data):
+        # 将数据转换为 JSON 格式
+        entries = []
+        for row in data:
+            entry = {
+                'id': row[0],
+                'website': row[1],
+                'username': row[2],
+                'password': row[3],
+                'notes': row[4]
+            }
+            entries.append(entry)
+        json_data = json.dumps(entries, indent=4).encode('utf-8')
+
+        key = b'Sixteen byte key'      
+        iv = get_random_bytes(AES.block_size)  
+        cipher = AES.new(key, AES.MODE_CBC, iv)
+        cipherText = cipher.encrypt(pad(json_data, AES.block_size))
+
+        # 将 IV 和密文保存到文件。解密时需要从文件中读取前16个字节作为 IV
+        with open(file_path, 'wb') as f:
+            f.write(iv)
+            f.write(cipherText)
+    
+    def import_passwords(self, file_path, fmt):
+        if fmt == 'csv':
+            self._import_from_csv(file_path)
+        elif fmt == 'json':
+            self._import_from_json(file_path)
+        elif fmt == 'aes':
+            self._import_from_aes(file_path)
+        else:
+            raise ValueError(f"Unsupported format: {fmt}")
+
+    def _import_from_csv(self, file_path):
+        if cfg.get(cfg.importSetting) == "Skip":
+            override = False
+        else:
+            override = True
+        with open(file_path, newline='', encoding='utf-8') as f:
+            reader = csv.reader(f)
+            header = next(reader, None)  # 跳过表头
+            for row in reader:
+                if len(row) < 4:
+                    continue
+                website = row[1]
+                username = row[2]
+                password = row[3]
+                notes = row[4] if len(row) >= 5 else ""
+                self.add_password(website, username, password, notes, override)
+
+    def _import_from_json(self, file_path):
+        if cfg.get(cfg.importSetting) == "Skip":
+            override = False
+        else:
+            override = True
+        with open(file_path, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+            for entry in data:
+                website = entry.get('website', "")
+                username = entry.get('username', "")
+                password = entry.get('password', "")
+                notes = entry.get('notes', "")
+                self.add_password(website, username, password, notes, override)
+
+    def _import_from_aes(self, file_path):
+        if cfg.get(cfg.importSetting) == "Skip":
+            override = False
+        else:
+            override = True
+        with open(file_path, 'rb') as f:
+            # 读取前16字节作为 IV
+            iv = f.read(16)  
+            cipherText = f.read()
+        key = b'Sixteen byte key'
+        cipher = AES.new(key, AES.MODE_CBC, iv)
+        from Crypto.Util.Padding import unpad
+        decrypted = unpad(cipher.decrypt(cipherText), AES.block_size)
+        json_data = decrypted.decode('utf-8')
+        data = json.loads(json_data)
+        for entry in data:
+            website = entry.get('website', "")
+            username = entry.get('username', "")
+            password = entry.get('password', "")
+            notes = entry.get('notes', "")
+            self.add_password(website, username, password, notes, override)
 
     def __del__(self):
         if self.conn:

@@ -1,10 +1,10 @@
 {
     "MainWindow": {
-        "BackgroundMode": "Light",
-        "ExportDir": "D:/study/NIS3366/SafeKey"
+        "ExportDir": "D:/study/NIS3366/SafeKey",
+        "ImportSetting": "Override"
     },
     "QFluentWidgets": {
-        "ThemeColor": "#ff009faa",
-        "ThemeMode": "Dark"
+        "ThemeColor": "#ff10abf9",
+        "ThemeMode": "Light"
     }
 }
