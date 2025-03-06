@@ -45,7 +45,7 @@ class SettingInterface(ScrollArea):
         self.backgroundCard.setSizePolicy(QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed))
         self.backgroundCard.optionChanged.connect(self.theme_option_changed)
 
-        self.colorCard = colorCard(self.scrollWidget, self.mainWindow)
+        self.colorCard = ColorCard(self.scrollWidget, self.mainWindow)
         self.colorCard.setSizePolicy(QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed))
 
         # 个性化相关
@@ -126,7 +126,7 @@ class SettingInterface(ScrollArea):
         selected_option = item.value
         cfg.set(cfg.importSetting, selected_option)
 
-class colorCard(ExpandGroupSettingCard):
+class ColorCard(ExpandGroupSettingCard):
     def __init__(self, parent=None, mainWindow=None):
         super().__init__(FluentIcon.VIEW, "主题颜色", "修改主题颜色", parent)
         self.mainWindow = mainWindow

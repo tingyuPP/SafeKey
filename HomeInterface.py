@@ -9,7 +9,7 @@ from PyQt5.QtCore import QUrl
 from PyQt5.QtCore import Qt, QTimer
 from qfluentwidgets import FluentIcon as FIF
 import sqlite3
-from database import DatabaseManager
+from Database import DatabaseManager
 from config import cfg
 import os
 
@@ -124,7 +124,7 @@ class HomeInterface(QFrame):
             return
 
         if col in [1, 2, 3] and not new_value: 
-            MessageBox("警告", "网站、用户名及密码不能为空", self).exec_()
+            MessageBox("警告", "网站、用户名及密码不能为空", self.mainWindow).exec_()
             self.load_data()  
             return
         
@@ -134,7 +134,7 @@ class HomeInterface(QFrame):
                 **{column_mapping[col]: new_value}
             )
         except sqlite3.Error as e:
-            MessageBox("错误", f"数据库更新失败: {str(e)}", self).exec_()
+            MessageBox("错误", f"数据库更新失败: {str(e)}", self.mainWindow).exec_()
             self.load_data()  
 
         self.editing_enabled = False  
@@ -469,7 +469,7 @@ class ExportMessageBox(MessageBoxBase):
             return False
             
         # 路径有效性检查
-        if not os.path.isdir(os.path.dirname(path)):
+        if not os.path.isdir(path):
             self.warningLabel.setText("目录路径无效")
             self.warningLabel.show()
             return False

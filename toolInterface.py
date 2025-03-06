@@ -62,6 +62,7 @@ class EasyPassGenerator(HeaderCardWidget):
         self.copyButton = PrimaryPushButton(FIF.COPY, "复制")
         self.comboBox = ComboBox(self)
         self.strengthLabel = StrongBodyLabel("密码强度", self)
+        self.strengthBarLabel = StrongBodyLabel("", self)
         self.strengthBar = ProgressBar(self)
         
         # 信号连接
@@ -75,7 +76,6 @@ class EasyPassGenerator(HeaderCardWidget):
         self.resultLineEdit.setReadOnly(True)
         self.comboBox.addItems(["高强度", "易记忆"])
         self.comboBox.setFixedWidth(320)
-        self.strengthBarLabel = StrongBodyLabel("", self)
         self.strengthBarLabel.hide()
         self.strengthBar.setFixedHeight(8)
         self.strengthBar.setFixedWidth(320)

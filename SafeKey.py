@@ -9,7 +9,7 @@ from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QApplication
 from SettingInterface import SettingInterface
 from HomeInterface import HomeInterface
-from toolInterface import ToolInterface
+from ToolInterface import ToolInterface
 from config import cfg
 
 myappid = 'SafeKey'
