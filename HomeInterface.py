@@ -235,6 +235,7 @@ class HomeInterface(QFrame):
     def import_pass(self):
         """导入密码"""
         w = QFileDialog.getOpenFileName(self, "选择文件", "", "CSV Files (*.csv);;JSON Files (*.json);;AES Files (*.aes)")
+        
         if w[0]:
             try:
                 print(w[0], w[1].split()[0].lower())
